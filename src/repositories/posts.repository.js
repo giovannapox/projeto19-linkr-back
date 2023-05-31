@@ -1,6 +1,58 @@
 import { db } from "../database/database.connection.js";
 import parseHashtags from "../utils/parseHashtags.js";
 
+export async function listPosts(userId, authorId, hashtag) {
+  const whereConditions = [];
+  const values = [userId];
+  let placeholder = 2;
+
+  if (authorId) {
+    whereConditions.push(`u.id = $${placeholder}`);
+    values.push(authorId);
+    placeholder++;
+  }
+
+  if (hashtag) {
+    whereConditions.push(`h.title = $${placeholder}`);
+    values.push(hashtag);
+  }
+
+  const whereClause =
+    whereConditions.length !== 0 ? whereConditions.join(" AND ") : "TRUE";
+
+  const text = `
+    SELECT
+      p.id,
+      p.caption,
+      p.url,
+      p."createdAt",
+      json_build_object(
+        'id', u.id,
+        'name', u.name,
+        'pictureUrl', u."pictureUrl"
+      ) AS author,
+      (
+        SELECT count(*)::integer
+        FROM "postLikes" pl
+        WHERE pl."postId" = p.id
+      ) AS "likesCount",
+      exists(
+        SELECT 1
+        FROM "postLikes" pl
+        WHERE pl."userId" = $1 AND pl."postId" = p.id
+      ) AS liked
+    FROM posts p
+    JOIN users u ON u.id = p."userId"
+    LEFT JOIN "postsHashtags" ph ON ph."postId" = p.id
+    LEFT JOIN hashtags h ON h.id = ph."hashtagId"
+    WHERE ${whereClause}
+    ORDER BY p."createdAt" DESC, p.id DESC
+  `;
+
+  const { rows } = await db.query(text, values);
+  return rows;
+}
+
 export async function insertPost(userId, caption, url) {
   const client = await db.connect();
   const hashtags = parseHashtags(caption);
