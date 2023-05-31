@@ -47,6 +47,7 @@ export async function listPosts(userId, authorId, hashtag) {
     LEFT JOIN hashtags h ON h.id = ph."hashtagId"
     WHERE ${whereClause}
     ORDER BY p."createdAt" DESC, p.id DESC
+    LIMIT 20
   `;
 
   const { rows } = await db.query(text, values);
