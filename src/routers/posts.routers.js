@@ -5,6 +5,7 @@ import validateToken from "../middlewares/validateToken.js";
 import {
   insertPostController,
   listPostsController,
+  getUserPostsController,
 } from "../controllers/posts.controllers.js";
 
 const postsRouter = Router();
@@ -16,5 +17,6 @@ postsRouter.post(
   validateBody(postSchema),
   insertPostController
 );
+postsRouter.get("/user/:id", validateToken, getUserPostsController);
 
 export default postsRouter;
