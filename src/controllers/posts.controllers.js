@@ -1,11 +1,12 @@
-import { insertPost, listPosts } from "../repositories/posts.repository.js";
+import { insertPost } from "../repositories/posts.repository.js";
+import { listPostsWithMetadata } from "../services/posts.services.js";
 
 export async function listPostsController(req, res) {
   const { author, hashtag } = req.query;
   const { user } = res.locals;
 
   try {
-    const posts = await listPosts(user.id, author, hashtag);
+    const posts = await listPostsWithMetadata(user.id, author, hashtag);
     return res.send(posts);
   } catch (err) {
     console.error(err);
