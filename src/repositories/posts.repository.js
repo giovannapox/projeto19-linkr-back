@@ -56,7 +56,6 @@ export async function listPosts(userId, authorId, hashtag) {
 
 export async function insertPost(userId, caption, url) {
   const client = await db.connect();
-  const hashtags = parseHashtags(caption);
 
   try {
     await client.query("BEGIN");
@@ -75,7 +74,13 @@ export async function insertPost(userId, caption, url) {
       insertPostValues
     );
 
+    if (!caption) {
+      await client.query("COMMIT");
+      return insertPostResult.rows;
+    }
+
     const postId = insertPostResult.rows[0].id;
+    const hashtags = parseHashtags(caption);
 
     const placeholders = Array.from(
       { length: hashtags.length },
