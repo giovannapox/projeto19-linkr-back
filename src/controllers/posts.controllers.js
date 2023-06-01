@@ -2,10 +2,10 @@ import { insertPost, listPosts } from "../repositories/posts.repository.js";
 
 export async function listPostsController(req, res) {
   const { author, hashtag } = req.query;
-  const userId = 1;
+  const { user } = res.locals;
 
   try {
-    const posts = await listPosts(userId, author, hashtag);
+    const posts = await listPosts(user.id, author, hashtag);
     return res.send(posts);
   } catch (err) {
     console.error(err);
@@ -14,10 +14,11 @@ export async function listPostsController(req, res) {
 }
 
 export async function insertPostController(req, res) {
-  const { id, caption, url } = res.locals.body;
+  const { caption, url } = res.locals.body;
+  const { user } = res.locals;
 
   try {
-    const post = await insertPost(id, caption, url);
+    const post = await insertPost(user.id, caption, url);
     return res.status(201).send(post);
   } catch (err) {
     if (err.constraint === "posts_userId_fkey") {
