@@ -29,3 +29,16 @@ export async function insertPostController(req, res) {
     return res.status(500).send(err);
   }
 }
+
+export async function getUserPostsController(req, res) {
+  const { id } = req.params;
+  const { user } = res.locals;
+
+  try {
+    const posts = await listPosts(user.id, id);
+    return res.send(posts);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+}
