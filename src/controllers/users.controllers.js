@@ -38,7 +38,7 @@ export async function signin (req, res){
             await db.query(`INSERT INTO tokens (token, "userId") VALUES ($1, $2);`, [token, id]);
         };
 
-        return res.status(200).send({ token: token })
+        return res.status(200).send({ token: token, picture:  userExists.rows[0].pictureUrl})
     } catch (err) {
         return res.status(500).send(err.message);
     };
