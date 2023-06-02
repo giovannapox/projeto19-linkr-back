@@ -43,19 +43,3 @@ export async function signin (req, res){
         return res.status(500).send(err.message);
     };
 };
-
-export async function searchUsers(req, res) {
-    const searchTerm = req.query.search;
-  
-    try {
-      const { rows } = await db.query(
-        `SELECT * FROM users WHERE name LIKE $1`,
-        [`%${searchTerm}%`]
-      );
-  
-      res.send(rows);
-    } catch (err) {
-      console.error(err);
-      res.status(500).send(err);
-    }
-  }
