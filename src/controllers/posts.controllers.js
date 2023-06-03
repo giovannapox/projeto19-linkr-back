@@ -1,5 +1,9 @@
-import { insertPost } from "../repositories/posts.repository.js";
 import { listPostsWithMetadata } from "../services/posts.services.js";
+import {
+  insertPost,
+  likePost,
+  unlikePost,
+} from "../repositories/posts.repository.js";
 
 export async function listPostsController(req, res) {
   const { author, hashtag } = req.query;
@@ -26,6 +30,30 @@ export async function insertPostController(req, res) {
       return res.sendStatus(422);
     }
 
+    console.error(err);
+    return res.status(500).send(err);
+  }
+}
+
+export async function likePostController(req, res) {
+  const { user, id } = res.locals;
+
+  try {
+    const likeCount = await likePost(user.id, id);
+    return res.send(likeCount);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+}
+
+export async function unlikePostController(req, res) {
+  const { user, id } = res.locals;
+
+  try {
+    const likeCount = await unlikePost(user.id, id);
+    return res.send(likeCount);
+  } catch (err) {
     console.error(err);
     return res.status(500).send(err);
   }

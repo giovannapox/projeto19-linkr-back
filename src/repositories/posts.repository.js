@@ -13,7 +13,14 @@ export async function listPosts(userId, authorId, hashtag) {
   }
 
   if (hashtag) {
-    whereConditions.push(`h.title = $${placeholder}`);
+    whereConditions.push(
+      `p.id IN (
+        SELECT ph."postId"
+        FROM hashtags h
+        JOIN "postsHashtags" ph ON ph."hashtagId" = h.id
+        WHERE h.title = $${placeholder}
+      )`
+    );
     values.push(hashtag);
   }
 
@@ -40,11 +47,22 @@ export async function listPosts(userId, authorId, hashtag) {
         SELECT 1
         FROM "postLikes" pl
         WHERE pl."userId" = $1 AND pl."postId" = p.id
-      ) AS liked
+      ) AS liked,
+      (
+        SELECT json_agg(t) AS "likedBy"
+        FROM (
+          SELECT
+            u.id,
+            u.name
+          FROM "postLikes" pl
+          JOIN users u ON pl."userId" = u.id
+          WHERE pl."postId" = p.id
+          ORDER BY pl."createdAt" DESC
+          LIMIT 2
+        ) AS t
+      )
     FROM posts p
     JOIN users u ON u.id = p."userId"
-    LEFT JOIN "postsHashtags" ph ON ph."postId" = p.id
-    LEFT JOIN hashtags h ON h.id = ph."hashtagId"
     WHERE ${whereClause}
     ORDER BY p."createdAt" DESC, p.id DESC
     LIMIT 20
@@ -139,4 +157,46 @@ export async function insertPost(userId, caption, url) {
   } finally {
     client.release();
   }
+}
+
+export async function likePost(userId, postId) {
+  const text = `
+    WITH inserted AS (
+      INSERT INTO "postLikes"
+        ("userId", "postId")
+      VALUES
+        ($1, $2)
+      ON CONFLICT DO NOTHING
+      RETURNING "postId"
+    )
+    SELECT count(*) AS "likeCount"
+    FROM (
+      SELECT "postId"
+      FROM "postLikes"
+      WHERE "postId" = $2
+      UNION ALL
+      SELECT *
+      FROM inserted
+    ) AS t
+  `;
+
+  const { rows } = await db.query(text, [userId, postId]);
+  return rows[0];
+}
+
+export async function unlikePost(userId, postId) {
+  const text = `
+    WITH deleted AS (
+      DELETE FROM "postLikes"
+      WHERE "userId" = $1 AND "postId" = $2
+      RETURNING *
+    )
+    SELECT count(*) AS "likeCount"
+    FROM "postLikes" pl
+    LEFT JOIN deleted d ON d.id = pl.id
+    WHERE d.id IS NULL
+  `;
+
+  const { rows } = await db.query(text, [userId, postId]);
+  return rows[0];
 }
