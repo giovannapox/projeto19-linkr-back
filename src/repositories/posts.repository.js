@@ -13,7 +13,14 @@ export async function listPosts(userId, authorId, hashtag) {
   }
 
   if (hashtag) {
-    whereConditions.push(`h.title = $${placeholder}`);
+    whereConditions.push(
+      `p.id IN (
+        SELECT ph."postId"
+        FROM hashtags h
+        JOIN "postsHashtags" ph ON ph."hashtagId" = h.id
+        WHERE h.title = $${placeholder}
+      )`
+    );
     values.push(hashtag);
   }
 
@@ -43,8 +50,6 @@ export async function listPosts(userId, authorId, hashtag) {
       ) AS liked
     FROM posts p
     JOIN users u ON u.id = p."userId"
-    LEFT JOIN "postsHashtags" ph ON ph."postId" = p.id
-    LEFT JOIN hashtags h ON h.id = ph."hashtagId"
     WHERE ${whereClause}
     ORDER BY p."createdAt" DESC, p.id DESC
     LIMIT 20
