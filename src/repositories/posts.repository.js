@@ -169,7 +169,8 @@ export async function likePost(userId, postId) {
       ON CONFLICT DO NOTHING
       RETURNING "postId"
     )
-    SELECT count(*) AS "likeCount"
+    SELECT
+      count(*)::integer AS "likesCount"
     FROM (
       SELECT "postId"
       FROM "postLikes"
@@ -191,10 +192,11 @@ export async function unlikePost(userId, postId) {
       WHERE "userId" = $1 AND "postId" = $2
       RETURNING *
     )
-    SELECT count(*) AS "likeCount"
+    SELECT
+      count(*)::integer AS "likesCount"
     FROM "postLikes" pl
     LEFT JOIN deleted d ON d.id = pl.id
-    WHERE d.id IS NULL
+    WHERE pl."postId" = $2 AND d.id IS NULL
   `;
 
   const { rows } = await db.query(text, [userId, postId]);
