@@ -59,3 +59,13 @@ export async function searchUsers(req, res) {
       res.status(500).send(err);
     }
   }
+
+  export async function getUserPosts(req, res) {
+    const { id } = req.params;
+    try {
+        const posts = await getPostsByUserId(id);
+        res.status(200).json(posts);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
