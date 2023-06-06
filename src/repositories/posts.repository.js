@@ -92,14 +92,14 @@ export async function insertPost(userId, caption, url) {
       insertPostValues
     );
 
-    if (!caption) {
+    const hashtags = parseHashtags(caption);
+
+    if (!caption || hashtags.length === 0) {
       await client.query("COMMIT");
       return insertPostResult.rows;
     }
 
     const postId = insertPostResult.rows[0].id;
-    const hashtags = parseHashtags(caption);
-
     const placeholders = Array.from(
       { length: hashtags.length },
       (_, i) => i + 1
@@ -203,7 +203,10 @@ export async function unlikePost(userId, postId) {
   return rows[0];
 }
 
-export async function getPostsByUserId(id) {
-  const result = await db.query(`SELECT * FROM posts WHERE "userId" = $1`, [id]);
+export async function getPostsByUserId(userId) {
+  const result = await db.query(`SELECT * FROM posts WHERE userId = $1`, [
+    userId,
+  ]);
+
   return result.rows;
 }
