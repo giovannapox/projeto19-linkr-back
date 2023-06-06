@@ -207,5 +207,6 @@ export async function getPostsByUserId(userId) {
   const result = await db.query(`SELECT * FROM posts WHERE userId = $1`, [
     userId,
   ]);
+
   return result.rows;
 }

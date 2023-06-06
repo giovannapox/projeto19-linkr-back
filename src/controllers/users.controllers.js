@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { db } from "../database/database.connection.js";
 import { v4 as uuid } from "uuid";
-import { getPostsByUserId } from "../repositories/posts.repository.js"
 
 export async function signup(req, res){
     const { email, password, name, pictureUrl } = req.body;
@@ -58,15 +57,5 @@ export async function searchUsers(req, res) {
     } catch (err) {
       console.error(err);
       res.status(500).send(err);
-    }
-  }
-
-  export async function getUserPosts(req, res) {
-    const { id } = req.params;
-    try {
-        const posts = await getPostsByUserId(id);
-        res.status(200).json(posts);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
     }
 }
