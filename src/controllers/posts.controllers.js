@@ -3,7 +3,6 @@ import {
   insertPost,
   likePost,
   unlikePost,
-  getPostsByUserId,
 } from "../repositories/posts.repository.js";
 
 export async function listPostsController(req, res) {
@@ -57,15 +56,5 @@ export async function unlikePostController(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).send(err);
-  }
-}
-
-export async function getUserPosts(req, res) {
-  const { id } = req.params;
-  try {
-    const posts = await getPostsByUserId(id)
-    res.status(200).send(posts);
-  } catch (err) {
-    res.status(500).send({ error: err.message });
   }
 }
