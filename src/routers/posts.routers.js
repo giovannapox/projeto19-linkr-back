@@ -7,6 +7,7 @@ import {
   likePostController,
   listPostsController,
   unlikePostController,
+  getUserPosts
 } from "../controllers/posts.controllers.js";
 import validateId from "../middlewares/validateId.js";
 
