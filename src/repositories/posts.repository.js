@@ -202,8 +202,3 @@ export async function unlikePost(userId, postId) {
   const { rows } = await db.query(text, [userId, postId]);
   return rows[0];
 }
-
-export async function getPostsByUserId(id) {
-  const result = await db.query(`SELECT * FROM posts WHERE "userId" = $1`, [id]);
-  return result.rows;
-}

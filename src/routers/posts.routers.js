@@ -7,14 +7,16 @@ import {
   likePostController,
   listPostsController,
   unlikePostController,
-  getUserPosts
 } from "../controllers/posts.controllers.js";
 import validateId from "../middlewares/validateId.js";
 
 const postsRouter = Router();
 
-postsRouter.get("/posts", validateToken, listPostsController);
-postsRouter.get("/posts/:id", validateToken, validateId, getUserPosts);
+postsRouter.get(
+  "/posts",
+  validateToken,
+  listPostsController
+);
 
 postsRouter.post(
   "/posts",
