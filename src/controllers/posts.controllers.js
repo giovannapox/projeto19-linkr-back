@@ -6,11 +6,18 @@ import {
 } from "../repositories/posts.repository.js";
 
 export async function listPostsController(req, res) {
-  const { author, hashtag } = req.query;
+  const { author, hashtag, startTimestamp, startId } = req.query;
   const { user } = res.locals;
 
   try {
-    const posts = await listPostsWithMetadata(user.id, author, hashtag);
+    const posts = await listPostsWithMetadata(
+      user.id,
+      author,
+      hashtag,
+      startTimestamp,
+      startId
+    );
+
     return res.send(posts);
   } catch (err) {
     console.error(err);

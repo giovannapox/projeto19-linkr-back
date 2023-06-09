@@ -1,8 +1,21 @@
 import urlMetadata from "url-metadata";
 import { listPosts } from "../repositories/posts.repository.js";
 
-export async function listPostsWithMetadata(userId, authorId, hashtag) {
-  const posts = await listPosts(userId, authorId, hashtag);
+export async function listPostsWithMetadata(
+  userId,
+  authorId,
+  hashtag,
+  startTimestamp,
+  startId
+) {
+  const posts = await listPosts(
+    userId,
+    authorId,
+    hashtag,
+    startTimestamp,
+    startId
+  );
+
   const metadataPromises = posts.map((post) => urlMetadata(post.url));
   const metadataResults = await Promise.allSettled(metadataPromises);
 
