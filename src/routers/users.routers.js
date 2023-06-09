@@ -8,6 +8,6 @@ const router = Router();
 
 router.post("/signup", signupValidation, signup);
 router.post("/signin", signinValidation, signin);
-router.get('/user/search', validateToken, searchUsers);
+router.get('/user', validateToken, searchUsers);
 
 export default router;
