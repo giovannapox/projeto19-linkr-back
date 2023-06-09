@@ -45,12 +45,14 @@ export async function signin (req, res){
 };
 
 export async function searchUsers(req, res) {
-    const searchTerm = req.query.search;
-  
+    const { search } = req.query;
+    const querySearch = search.replace(`${search}`, `%${search}%`);
+
     try {
-      const { rows } = await db.query(
-        `SELECT * FROM users WHERE name LIKE $1`,
-        [`%${searchTerm}%`]
+      const { rows } = await db.query(`
+        SELECT id, name, "pictureUrl" 
+        FROM users WHERE LOWER(name) LIKE LOWER($1);
+        `, [querySearch]
       );
   
       res.send(rows);
