@@ -1,7 +1,13 @@
 import { db } from "../database/database.connection.js";
 import parseHashtags from "../utils/parseHashtags.js";
 
-export async function listPosts(userId, authorId, hashtag) {
+export async function listPosts(
+  userId,
+  authorId,
+  hashtag,
+  startTimestamp,
+  startId
+) {
   const whereConditions = [];
   const values = [userId];
   let placeholder = 2;
@@ -21,7 +27,17 @@ export async function listPosts(userId, authorId, hashtag) {
         WHERE h.title = $${placeholder}
       )`
     );
+
     values.push(hashtag);
+    placeholder++;
+  }
+
+  if (startTimestamp && startId) {
+    whereConditions.push(
+      `(p."createdAt", p.id) < ($${placeholder}, $${placeholder + 1})`
+    );
+
+    values.push(startTimestamp, startId);
   }
 
   const whereClause =
